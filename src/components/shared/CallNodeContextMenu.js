@@ -37,6 +37,9 @@ import {
 import { getRightClickedCallNodeInfo } from 'firefox-profiler/selectors/right-clicked-call-node';
 import { getThreadSelectorsFromThreadsKey } from 'firefox-profiler/selectors/per-thread';
 import { oneLine } from 'common-tags';
+import {
+  setAdaptation,
+} from 'firefox-profiler/app-logic/web-channel';
 
 import {
   convertToTransformType,
@@ -161,6 +164,10 @@ class CallNodeContextMenuImpl extends React.PureComponent<Props> {
     copy(this._getFunctionName());
   }
 
+  setAdaptation(): void {
+    setAdaptation(this._getFunctionName());
+  }
+
   _getFilePath(): string | null {
     const rightClickedCallNodeInfo = this.getRightClickedCallNodeInfo();
 
@@ -279,6 +286,9 @@ class CallNodeContextMenuImpl extends React.PureComponent<Props> {
         break;
       case 'expand-all':
         this.expandAll();
+        break;
+      case 'set-adaptation':
+        this.setAdaptation();
         break;
       default:
         throw new Error(`Unknown type ${type}`);
@@ -644,6 +654,16 @@ class CallNodeContextMenuImpl extends React.PureComponent<Props> {
           transform: 'drop-function',
           title: '',
           content: 'Drop samples with this function',
+        })}
+
+        <div className="react-contextmenu-separator" />
+
+        {this.renderMenuItemWithShortcut({
+          l10nId: 'CallNodeContextMenu--transform-mark-adaptation',
+          onClick: this._handleClick,
+          data: {type: 'set-adaptation' },
+          shortcut: 'a',
+          content: 'Set adaptation for this function',
         })}
 
         <div className="react-contextmenu-separator" />

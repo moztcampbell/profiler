@@ -19,6 +19,7 @@ export type MessageToBrowser = {|
 export type Request =
   | StatusQueryRequest
   | EnableMenuButtonRequest
+  | SetAdaptationsRequest
   | GetProfileRequest
   | GetExternalMarkersRequest
   | GetExternalPowerTracksRequest
@@ -27,6 +28,10 @@ export type Request =
 
 type StatusQueryRequest = {| type: 'STATUS_QUERY' |};
 type EnableMenuButtonRequest = {| type: 'ENABLE_MENU_BUTTON' |};
+type SetAdaptationsRequest = {|
+  type: 'SET_ADAPTATIONS',
+  adaptations: string,
+|};
 type GetProfileRequest = {| type: 'GET_PROFILE' |};
 type GetExternalMarkersRequest = {|
   type: 'GET_EXTERNAL_MARKERS',
@@ -74,6 +79,7 @@ type SuccessResponseMessageFromBrowser<R: ResponseFromBrowser> = {
 export type ResponseFromBrowser =
   | StatusQueryResponse
   | EnableMenuButtonResponse
+  | SetAdaptationsResponse
   | GetProfileResponse
   | GetExternalMarkersResponse
   | GetExternalPowerTracksResponse
@@ -102,9 +108,12 @@ type StatusQueryResponse = {|
   //   Shipped in Firefox 125.
   //   Adds support for the following message types:
   //    - GET_EXTERNAL_MARKERS
+  //   Adds support for the following message types:
+  //    - SET_ADAPTATIONS
   version?: number,
 |};
 type EnableMenuButtonResponse = void;
+type SetAdaptationsResponse = void;
 type GetProfileResponse = ArrayBuffer | MixedObject;
 type GetExternalMarkersResponse = MixedObject[];
 type GetExternalPowerTracksResponse = MixedObject[];
@@ -119,6 +128,9 @@ declare function _sendMessageWithResponse(
 declare function _sendMessageWithResponse(
   EnableMenuButtonRequest
 ): Promise<EnableMenuButtonResponse>;
+declare function _sendMessageWithResponse(
+  SetAdaptationsRequest
+): Promise<SetAdaptationsResponse>;
 declare function _sendMessageWithResponse(
   GetProfileRequest
 ): Promise<GetProfileResponse>;
@@ -153,6 +165,19 @@ export async function queryIsMenuButtonEnabled(): Promise<boolean> {
 export async function enableMenuButton(): Promise<void> {
   await _sendMessageWithResponse({
     type: 'ENABLE_MENU_BUTTON',
+  });
+
+  // The response does not return any additional information other than we know
+  // the request was handled.
+}
+
+/**
+ * Send adaptation data to the Gecko profiler
+ */
+export async function setAdaptation(adaptation: string): Promise<void> {
+  await _sendMessageWithResponse({
+    type: 'SET_ADAPTATIONS',
+    adaptation: adaptation,
   });
 
   // The response does not return any additional information other than we know
